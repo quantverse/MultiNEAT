@@ -23,7 +23,7 @@ def getExtensions():
     if sys.version_info[0] < 3:
         lb = 'boost_python'
     else:
-        lb = 'boost_python3'  # in Ubuntu 14 there is only 'boost_python-py34'
+        lb = 'boost_python-py34'  # in Ubuntu 14 there is only 'boost_python-py34', other systems have `boost_python3`
     extensionsList = []
     sources = ['src/Genome.cpp',
                'src/Innovation.cpp',

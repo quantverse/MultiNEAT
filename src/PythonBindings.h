@@ -149,6 +149,8 @@ BOOST_PYTHON_MODULE(_MultiNEAT)
             .def("RTRL_update_weights",
             &NeuralNetwork::RTRL_update_weights)
 
+            .def("GetNetParams",
+            &NeuralNetwork::GetNetParams)
             .def("ActivateFast",
             &NeuralNetwork::ActivateFast)
             .def("Activate",

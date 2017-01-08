@@ -294,6 +294,47 @@ void NeuralNetwork::InitRTRLMatrix()
     }
 }
 
+std::vector<float> NeuralNetwork::GetNetParams()
+{
+    int num_inputs = m_num_inputs;
+    int c_size = m_connections.size();
+    int n_size = m_neurons.size();
+    float fc_size = (float) c_size;
+    float fn_size = (float) n_size;
+    float fnum_inputs = (float) num_inputs;
+    std::vector<float> m_weight;
+    std::vector<float> m_target;
+    std::vector<float> m_source;
+    std::vector<float> m_a;
+    std::vector<float> m_b;
+    
+    //Get network parameters
+
+    for (int i = 0; i < c_size; i++){
+        m_weight.insert(m_weight.begin()+i, m_connections[i].m_weight);
+        m_source.insert(m_source.begin()+i, m_connections[i].m_source_neuron_idx);
+        m_target.insert(m_target.begin()+i, m_connections[i].m_target_neuron_idx);
+    }
+
+    for (int i = 0; i < n_size; i++){
+        m_a.insert(m_a.begin()+i, m_neurons[i].m_a);
+        m_b.insert(m_b.begin()+i, m_neurons[i].m_b);
+    }
+
+    //Place in one array and assign to output
+    
+    m_weight.insert(m_weight.end(), m_source.begin(), m_source.end());
+    m_weight.insert(m_weight.end(), m_target.begin(), m_target.end());
+    m_weight.insert(m_weight.end(), m_a.begin(), m_a.end());
+    m_weight.insert(m_weight.end(), m_b.begin(), m_b.end());
+    m_weight.push_back(fc_size);
+    m_weight.push_back(fn_size);
+    m_weight.push_back(fnum_inputs);
+
+    return m_weight;
+
+}
+
 void NeuralNetwork::ActivateFast()
 {
     // Loop connections. Calculate each connection's output signal.

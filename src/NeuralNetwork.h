@@ -162,6 +162,7 @@ public:
 #endif
 
     std::vector<double> Output();
+    std::vector<float> GetNetParams();
 
     // accessor methods
     void AddNeuron(const Neuron& a_n) { m_neurons.push_back( a_n ); }
