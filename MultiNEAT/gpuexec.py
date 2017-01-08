@@ -89,8 +89,7 @@ class GpuExec:
         d_full_input = pycuda.gpuarray.to_gpu(full_input)          # Device vector of all inputs
 
         # Make the net output its parameters
-        net.ActivateFast()
-        net_params = net.Output()
+        net_params = net.GetNetParams()
 
         # Get the size of various constants
         num_inputs_float = net_params[len(net_params) - 1]
