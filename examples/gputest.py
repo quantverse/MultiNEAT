@@ -46,7 +46,7 @@ class GpuExec:
                 }
 
 
-                for (int i = 0; i < 2; i++){
+                for (int i = 0; i < 3; i++){
                     for (int i = 0; i < c_size; i++){
                         int id = d_m_source[i];
                         m_signal[i] = m_activation[id] * d_m_weight[i];

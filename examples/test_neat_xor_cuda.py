@@ -1,56 +1,62 @@
 #!/usr/bin/python3
 
-
-import os
-import sys
-import time
-import random as rnd
 import numpy as np
-import pickle as pickle
 import MultiNEAT as NEAT
 from MultiNEAT import EvaluateGenomeList_Serial
-from MultiNEAT import GetGenomeList, ZipFitness
 
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from gputest import GpuExec
+# from MultiNEAT.gpuexec import GpuExec
 
 
 def evaluate(genome):
     net = NEAT.NeuralNetwork()
     genome.BuildPhenotype(net)
-
-    error = 0
-
-    # do stuff and return the fitness
     net.Flush()
-    net.Input(np.array([1., 0., 1.]))  # can input numpy arrays, too
-    # for some reason only np.float64 is supported
-    for _ in range(2):
-        net.ActivateFast()
-    o = net.Output()
-    error += abs(1 - o[0])
+    ge = GpuExec()
 
-    net.Flush()
-    net.Input([0, 1, 1])
-    for _ in range(2):
-        net.ActivateFast()
-    o = net.Output()
-    error += abs(1 - o[0])
+    full_input = np.array([1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1], dtype=np.float32)
+    out = ge.eval(full_input, 3, 4, net)
+    # print(out)
 
-    net.Flush()
-    net.Input([1, 1, 1])
-    for _ in range(2):
-        net.ActivateFast()
-    o = net.Output()
-    error += abs(o[0])
+    # start old way
+    # oo = []
+    # # do stuff and return the fitness
+    # net.Flush()
+    # net.Input(np.array([1., 0., 1.]))  # can input numpy arrays, too
+    # # for some reason only np.float64 is supported
+    # for _ in range(2):
+    #     net.ActivateFast()
+    # o = net.Output()
+    # oo.append(o[0])
+    #
+    # net.Flush()
+    # net.Input([0, 1, 1])
+    # for _ in range(2):
+    #     net.ActivateFast()
+    # o = net.Output()
+    # oo.append(o[0])
+    #
+    # net.Flush()
+    # net.Input([1, 1, 1])
+    # for _ in range(2):
+    #     net.ActivateFast()
+    # o = net.Output()
+    # oo.append(o[0])
+    #
+    # net.Flush()
+    # net.Input([0, 0, 1])
+    # for _ in range(2):
+    #     net.ActivateFast()
+    # o = net.Output()
+    # oo.append(o[0])
+    # # end old way
+    # print("***")
+    # print(out)
+    # print(oo)
 
-    net.Flush()
-    net.Input([0, 0, 1])
-    for _ in range(2):
-        net.ActivateFast()
-    o = net.Output()
-    error += abs(o[0])
-
-    return (4 - error) ** 2
+    targets = [1, 1, 0, 0]
+    err = np.abs(out - targets)
+    return (4 - np.sum(err)) ** 2
 
 
 params = NEAT.Parameters()
@@ -100,13 +106,15 @@ def getbest(i):
     pop.RNG.Seed(i)
 
     generations = 0
-    for generation in range(1000):
+    for generation in range(200):
+        print("generation #", format(generation))
         genome_list = NEAT.GetGenomeList(pop)
         fitness_list = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         NEAT.ZipFitness(genome_list, fitness_list)
         pop.Epoch()
         generations = generation
         best = max(fitness_list)
+        print("best fitness ", best)
         if best > 15.0:
             break
 
@@ -114,7 +122,7 @@ def getbest(i):
 
 
 gens = []
-for run in range(100):
+for run in range(3):
     gen = getbest(run)
     gens += [gen]
     print('Run:', run, 'Generations to solve XOR:', gen)
