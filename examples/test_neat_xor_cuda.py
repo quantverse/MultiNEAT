@@ -4,8 +4,7 @@ import numpy as np
 import MultiNEAT as NEAT
 from MultiNEAT import EvaluateGenomeList_Serial
 
-from gputest import GpuExec
-# from MultiNEAT.gpuexec import GpuExec
+from MultiNEAT.gpuexec import GpuExec
 
 
 def evaluate(genome):
@@ -17,42 +16,6 @@ def evaluate(genome):
     full_input = np.array([1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1], dtype=np.float32)
     out = ge.eval(full_input, 3, 4, net)
     # print(out)
-
-    # start old way
-    # oo = []
-    # # do stuff and return the fitness
-    # net.Flush()
-    # net.Input(np.array([1., 0., 1.]))  # can input numpy arrays, too
-    # # for some reason only np.float64 is supported
-    # for _ in range(2):
-    #     net.ActivateFast()
-    # o = net.Output()
-    # oo.append(o[0])
-    #
-    # net.Flush()
-    # net.Input([0, 1, 1])
-    # for _ in range(2):
-    #     net.ActivateFast()
-    # o = net.Output()
-    # oo.append(o[0])
-    #
-    # net.Flush()
-    # net.Input([1, 1, 1])
-    # for _ in range(2):
-    #     net.ActivateFast()
-    # o = net.Output()
-    # oo.append(o[0])
-    #
-    # net.Flush()
-    # net.Input([0, 0, 1])
-    # for _ in range(2):
-    #     net.ActivateFast()
-    # o = net.Output()
-    # oo.append(o[0])
-    # # end old way
-    # print("***")
-    # print(out)
-    # print(oo)
 
     targets = [1, 1, 0, 0]
     err = np.abs(out - targets)
@@ -107,14 +70,14 @@ def getbest(i):
 
     generations = 0
     for generation in range(200):
-        print("generation #", format(generation))
+        # print("generation #", format(generation))
         genome_list = NEAT.GetGenomeList(pop)
         fitness_list = EvaluateGenomeList_Serial(genome_list, evaluate, display=False)
         NEAT.ZipFitness(genome_list, fitness_list)
         pop.Epoch()
         generations = generation
         best = max(fitness_list)
-        print("best fitness ", best)
+        # print("best fitness ", best)
         if best > 15.0:
             break
 
@@ -122,7 +85,7 @@ def getbest(i):
 
 
 gens = []
-for run in range(3):
+for run in range(5):
     gen = getbest(run)
     gens += [gen]
     print('Run:', run, 'Generations to solve XOR:', gen)
