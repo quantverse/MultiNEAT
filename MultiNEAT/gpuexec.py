@@ -40,13 +40,8 @@ class GpuExec:
                 float* m_activesum(activesum_malloc + tx * c_size);
                 float* m_activation(neuron_activation_malloc + tx * n_size);
                 memcpy(m_activation, d_inputs + in_size*tx, sizeof(float)*in_size);
-                for (int i = num_inputs; i<n_size; i++) {
-                    m_activesum[i] = 0.0;
-                    m_activation[i] = 0.0;
-                }
 
-
-                for (int i = 0; i < 3; i++){
+                for (int i = 0; i < 2; i++){
                     for (int i = 0; i < c_size; i++){
                         int id = d_m_source[i];
                         m_signal[i] = m_activation[id] * d_m_weight[i];
@@ -60,10 +55,9 @@ class GpuExec:
                     for (unsigned int i = num_inputs; i < n_size; i++)
                     {
                         float x = m_activesum[i];
+                        m_activesum[i] = 0;
                         float a = d_m_a[i];
                         float b = d_m_b[i];
-                        //y = exp(-a*x*x - b);
-                        //return 1.0 / (1.0 + exp( - aSlope * aX - aShift));
                         m_activation[i] = 1.0/(1.0 + exp(-a*x-b));
                     }
                 }
@@ -129,9 +123,8 @@ class GpuExec:
                 d_m_b[i - (c_size_int*3 + n_size_int)] = net_params[i]
 
         # Constants for grid/thread size
-        grid_s = int(math.ceil(i_size/512))
+        grid_s = int(math.ceil(a_size/512))
         threads_per_launch_malloc_s = int((grid_s * 512)*c_size)
-
         threads_per_launch_malloc_neurons_s = int((grid_s * 512) * n_size)
 
         # Create/allocate device vectors for network parameters
