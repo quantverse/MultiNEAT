@@ -37,7 +37,7 @@ class GpuExec:
             if (tx < a_size){
                 int in_size = int(i_size/a_size);
                 float* m_signal(signal_malloc + tx * c_size);
-                float* m_activesum(activesum_malloc + tx * c_size);
+                float* m_activesum(activesum_malloc + tx * n_size);
                 float* m_activation(neuron_activation_malloc + tx * n_size);
                 memcpy(m_activation, d_inputs + in_size*tx, sizeof(float)*in_size);
 
